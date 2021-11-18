@@ -53,6 +53,9 @@ import {
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { helpCircle } from "ionicons/icons";
+
+const INITIAL_TIME = 5
+
 export default defineComponent({
   name: 'Home',
   components: {
@@ -68,11 +71,13 @@ export default defineComponent({
     IonRow,
     IonCol
   },
-  setup(){
+  data(){
     return{
       helpCircle: helpCircle,
       score: 0,
-      timeLeft: 60
+      timeLeft: INITIAL_TIME,
+      notStarted: false,
+      counterInterval: null
     }
   },
   methods:{
@@ -90,13 +95,32 @@ export default defineComponent({
       const { role } = await alert.onDidDismiss();
       console.log('onDidDismiss resolved with role', role);
     },
-    async tap() {
+    tap() {
+      this.score++;
+      if(!this.notStarted){
+        this.notStarted = true;
+        this.counterInterval = setInterval(() => {this.timeLeft--}, 1000)
+      }
+    },
+    async showFinalMsg() {
       const toast = await toastController
           .create({
-            message: 'Your settings have been saved.',
+            message: `Fi del temps! La teva puntuació ha estat de ${this.score}`,
             duration: 2000
           })
       return toast.present();
+    }
+  },
+  watch: {
+    // eslint-disable-next-line vue/no-arrow-functions-in-watch
+    timeLeft: function(newTimeLeft) {
+      if (newTimeLeft <= 0){
+        this.notStarted = false;
+        this.timeLeft = INITIAL_TIME
+        clearInterval(this.counterInterval)
+        this.showFinalMsg()
+        this.score = 0
+      }
     }
   }
 });
