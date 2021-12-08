@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header :translucent="true">
-      <ion-toolbar>
+      <ion-toolbar color="secondary">
         <ion-title>Lluitador del temps</ion-title>
 
         <ion-buttons slot="primary">
@@ -12,12 +12,12 @@
       </ion-toolbar>
     </ion-header>
     
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" background="secondary-contrast">
       <ion-header class="ion-no-border ion-padding-top">
         <ion-grid>
           <ion-row>
             <ion-col>
-              <div>
+              <div id="punt">
                 Your Score: {{score}}
               </div>
             </ion-col>
@@ -31,7 +31,7 @@
       </ion-header>
     
       <div id="container">
-        <ion-button @click="tap">
+        <ion-button id="tapMeButton" @click="tap">
           TAP ME!
         </ion-button>
       </div>
@@ -53,8 +53,9 @@ import {
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { helpCircle } from "ionicons/icons";
+import { createAnimation } from '@ionic/vue';
 
-const INITIAL_TIME = 5
+const INITIAL_TIME = 60
 
 export default defineComponent({
   name: 'Home',
@@ -81,6 +82,20 @@ export default defineComponent({
     }
   },
   methods:{
+    bounce(){
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('tapMeButton'))
+        .duration(2000)
+        .fromTo('transform', 'scale(2.0)', 'scale(1.0)')
+      animation.play();
+    },
+    blink(){
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('punt'))
+          .duration(500)
+          .fromTo('opacity', '0', '1')
+      animation.play();
+    },
     async info(){
       const alert = await alertController
           .create({
@@ -96,6 +111,8 @@ export default defineComponent({
       console.log('onDidDismiss resolved with role', role);
     },
     tap() {
+      this.bounce()
+      this.blink()
       this.score++;
       if(!this.notStarted){
         this.notStarted = true;
